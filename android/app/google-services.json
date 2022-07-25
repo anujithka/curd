@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "455992712805",
+    "project_id": "retrive-a93cb",
+    "storage_bucket": "retrive-a93cb.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:455992712805:android:3fc8a0785005b5f8ebf08c",
+        "android_client_info": {
+          "package_name": "com.example.curd"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "455992712805-6akdregdsglmm7heh2o1qgueldck6in2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA_qAUShw27dHANFX5m9eavEjgQ70E5NIM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "455992712805-6akdregdsglmm7heh2o1qgueldck6in2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
