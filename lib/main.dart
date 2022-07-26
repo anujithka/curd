@@ -1,82 +1,133 @@
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:curd/addnote.dart';
+import 'package:curd/editnote.dart';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
-void main() async{
+
+
+
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  runApp(const MyApp());
+  runApp(MyApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
 
-  // This widget is the root of your application.
+class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: "todo app",
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
-        primarySwatch: Colors.blue,
+        primaryColor: Colors.blue[900],
       ),
-      home: MyHomePage(),
+      home: Home(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key? key}) : super(key: key);
-
+class Home extends StatefulWidget {
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
-  
+  _HomeState createState() => _HomeState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  
-  get firebase => null;
-
-
-  // Future<FirebaseApp> _initializeFirebase() async {
-  //   FirebaseApp firebaseApp = await firebase.initializeApp();
-  //   return firebaseApp;
-    final CollectionReference _products =
-        FirebaseFirestore.instance.collection('products');
-    @override
-    Widget build(BuildContext context) {
-      return Scaffold(
-        body: StreamBuilder(
-          stream: _products.snapshots(),
-          builder: (context, AsyncSnapshot<QuerySnapshot> streamSnapshot) {
-            if (streamSnapshot.hasData) {
-              return ListView.builder(itemBuilder: (context, index) {
-                final DocumentSnapshot documentSnapshot =
-                    streamSnapshot.data!.docs[index];
-                return Card(
-                  margin: const EdgeInsets.all(20),
-                  child: ListTile(
-                    title: Text(documentSnapshot['name']),
-                    subtitle: Text(documentSnapshot['price'].toString()),
-                  ),
-                );
-              });
-            }
-            return const Center(
+class _HomeState extends State<Home> {
+  final Stream<QuerySnapshot> _usersStream =
+      FirebaseFirestore.instance.collection('notes').snapshots();
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.pushReplacement(
+              context, MaterialPageRoute(builder: (_) => addnote()));
+        },
+        child: Icon(
+          Icons.add,
+        ),
+      ),
+      appBar: AppBar(
+        title: Text('todo'),
+      ),
+      body: StreamBuilder(
+        stream: _usersStream,
+        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+          if (snapshot.hasError) {
+            return Text("something is wrong");
+          }
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(
               child: CircularProgressIndicator(),
             );
-          },
-        ),
-      );
-    }
-  }
+          }
 
+          return Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: ListView.builder(
+              itemCount: snapshot.data!.docs.length,
+              itemBuilder: (_, index) {
+                return GestureDetector(
+                  onTap: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) =>
+                            editnote(docid: snapshot.data!.docs[index]),
+                      ),
+                    );
+                  },
+                  child: Column(
+                    children: [
+                      SizedBox(
+                        height: 4,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(
+                          left: 3,
+                          right: 3,
+                        ),
+                        child: ListTile(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            side: BorderSide(
+                              color: Colors.black,
+                            ),
+                          ),
+                          title: Text(
+                            snapshot.data!.docChanges[index].doc['title'],
+                            style: TextStyle(
+                              fontSize: 20,
+                            ),
+                          ),
+                          subtitle: Text(
+                            snapshot.data!.docChanges[index].doc['content'],
+                            style: TextStyle(
+                              fontSize: 15,
+                            ),
+                          ),
+                          contentPadding: EdgeInsets.symmetric(
+                            vertical: 12,
+                            horizontal: 16,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
